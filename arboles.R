@@ -172,40 +172,43 @@ mc<-Mclust(housesFilter,3)
 plot(mc, what = "classification", main="MClust Classification")
 housesFilter$mxGau<-mc$classification
 #Mixture of gaussians
-housesFilter <-select(houses,X1stFlrSF,X2ndFlrSF,LowQualFinSF,GrLivArea,SalePrice)
+housesFilter <-select(houses,X1stFlrSF,X2ndFlrSF,GrLivArea,GarageCars,GarageYrBlt,SalePrice)
+#housesFilter <-select(houses,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,SalePrice)
 #Data cleanup
+
 housesFilter <- na.omit(housesFilter)
 mc<-Mclust(housesFilter,3)
 plot(mc, what = "classification", main="MClust Classification")
-datos$mxGau<-mc$classification
+#housesFilter$mxGau<-mc$classification
+housesFilter 
 #Mixture of gaussians
-housesFilter <-select(houses,TotRmsAbvGrd,Fireplaces,GarageYrBlt,GarageCars,SalePrice)
+#housesFilter <-select(houses,TotRmsAbvGrd,Fireplaces,GarageYrBlt,GarageCars,SalePrice)
 #Data cleanup
-housesFilter <- na.omit(housesFilter)
-mc<-Mclust(housesFilter,3)
-plot(mc, what = "classification", main="MClust Classification")
-datos$mxGau<-mc$classification
+#housesFilter <- na.omit(housesFilter)
+#mc<-Mclust(housesFilter,3)
+#plot(mc, what = "classification", main="MClust Classification")
+#datos$mxGau<-mc$classification
 #Mixture of gaussians
-housesFilter <-select(houses,ScreenPorch,PoolArea,MoSold,YrSold,SalePrice)
+#housesFilter <-select(houses,ScreenPorch,PoolArea,MoSold,YrSold,SalePrice)
 #Data cleanup
-housesFilter <- na.omit(housesFilter)
-mc<-Mclust(housesFilter,3)
-plot(mc, what = "classification", main="MClust Classification")
-datos$mxGau<-mc$classification
+#housesFilter <- na.omit(housesFilter)
+#mc<-Mclust(housesFilter,3)
+#plot(mc, what = "classification", main="MClust Classification")
+#datos$mxGau<-mc$classification
 #Mixture of gaussians
-housesFilter <-select(houses,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,SalePrice)
+#housesFilter <-select(houses,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,SalePrice)
 #Data cleanup
-housesFilter <- na.omit(housesFilter)
-mc<-Mclust(housesFilter,3)
-plot(mc, what = "classification", main="MClust Classification")
-datos$mxGau<-mc$classification
+#housesFilter <- na.omit(housesFilter)
+#mc<-Mclust(housesFilter,3)
+#plot(mc, what = "classification", main="MClust Classification")
+#datos$mxGau<-mc$classification
 #Prueba
-housesFilter <-select(houses, GarageYrBlt, , X1stFlrsSF, X2stFlrsSF, GrLivArea,SalePrice)
+#housesFilter <-select(houses, GarageYrBlt, X1stFlrsSF ,SalePrice)
 #Data cleanup
-housesFilter <- na.omit(housesFilter)
-mc<-Mclust(housesFilter,3)
-plot(mc, what = "classification", main="MClust Classification")
-housesFilter$mxGau<-mc$classification
+#housesFilter <- na.omit(housesFilter)
+#mc<-Mclust(housesFilter,3)
+#plot(mc, what = "classification", main="MClust Classification")
+#housesFilter$mxGau<-mc$classification
 
 cluster <- housesFilter
 km<-kmeans(housesFilter,3)
@@ -216,6 +219,64 @@ silkm<-silhouette(km$cluster,dist(housesFilter))
 mean(silkm[,3]) #0.55, no es la mejor partición pero no está mal
 
 #Método de la silueta para mixture of gaussians
-silmg<-silhouette(mc$classification,dist(housesFilter))
-mean(silmg[,3]) #0.50, no es la mejor partición pero no está mal
+#silmg<-silhouette(mc$classification,dist(housesFilter))
+#mean(silmg[,3]) #0.50, no es la mejor partición pero no está mal
 
+library(rpart)
+library(caret)
+library(tree)
+library(rpart.plot)
+library(randomForest)
+#housesFilter <-select(houses,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,grupo)
+#Data cleanup
+housesFilter
+housesFiltertree <- select(housesFilter,X1stFlrSF,X2ndFlrSF,GrLivArea,GarageCars,GarageYrBlt,grupo)
+#<- na.omit(housesFilter)
+# variable respuesta la clase de la flor
+housesFiltertree
+porciento <- 70/100
+
+set.seed(123)
+trainRowsNumber<-sample(1:nrow(housesFiltertree),porciento*nrow(housesFiltertree))
+train<-housesFiltertree[trainRowsNumber,]
+test<-housesFiltertree[-trainRowsNumber,]
+train
+#Clasiffication Tree
+dt_model<-rpart(train$grupo~.,train,method = "class")
+plot(dt_model);text(dt_model)
+prp(dt_model)
+rpart.plot(dt_model)
+
+head(test)
+prediccion <- predict(dt_model, newdata = test[1:5])
+prediccion
+
+columnaMasAlta<-apply(prediccion, 1, function(x) colnames(prediccion)[which.max(x)])
+test$prediccion<-columnaMasAlta #Se le añade al grupo de prueba el valor de la predicción
+test#Resultado de la predicción
+
+cfm<-table(test$grupo,test$prediccion)
+cfm
+#con random forest
+modeloRF1<-randomForest(train$grupo~.,data=train)
+prediccionRF1<-predict(modeloRF1,newdata = test)
+testCompleto<-test
+testCompleto
+testCompleto$predRF<-prediccionRF1
+cfmRandomForest <- confusionMatrix(testCompleto$predRF, testCompleto$Species)
+#Regresion Tree
+dt_model<-rpart(train$grupo~.,train,method = "anova")
+plot(dt_model);text(dt_model)
+prp(dt_model)
+rpart.plot(dt_model)
+
+head(test)
+prediccion <- predict(dt_model, newdata = test[1:5])
+prediccion
+
+columnaMasAlta<-apply(prediccion, 1, function(x) colnames(prediccion)[which.max(x)])
+test$prediccion<-columnaMasAlta #Se le añade al grupo de prueba el valor de la predicción
+test#Resultado de la predicción
+
+cfm<-table(test$grupo,test$prediccion)
+cfm
