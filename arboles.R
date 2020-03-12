@@ -1,7 +1,7 @@
 library(dplyr) #Para usar select
 library(fpc) #Para la gráfica 
 library(cluster) #Parla silueta
-library(ggpubr) #Para regresiones
+library("ggpubr") #Para regresiones
 
 setwd("~/Documents/Mineria/Arboles-de-decision")
 houses <- read.csv("train.csv")
@@ -130,6 +130,17 @@ plotcluster(cluster,km$cluster) #grafica la ubicación de los clusters
 #Método de la silueta para las k-medias
 silkm<-silhouette(km$cluster,dist(housesFilter))
 mean(silkm[,3]) #Silueta de 0.561677
+
+g1<- housesFilter[housesFilter$grupo==1,]
+prop.table(table(g1$Species))*100
+g2<- housesFilter[housesFilter$grupo==2,]
+prop.table(table(g2$Species))*100
+g3<- housesFilter[housesFilter$grupo==3,]
+prop.table(table(g3$Species))*100
+
+summary(g1)
+summary(g2)
+summary(g3)
 ## Correlación entre variables independientes y el precio de venta 
 cor(housesFilter$LotFrontage, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
 cor(housesFilter$LotArea, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
@@ -158,18 +169,18 @@ cor(housesFilter$MoSold, housesFilter$SalePrice, method = c("pearson", "kendall"
 cor(housesFilter$YrSold, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
 #----------Prueba
 #Selected rows
-housesFilter <-select(houses, LotFrontage, LotArea, YearBuilt, YearRemodAdd, MasVnrArea, BsmtFinSF1,BsmtUnfSF,TotalBsmtSF,X1stFlrSF,X2ndFlrSF,GrLivArea,TotRmsAbvGrd,Fireplaces,GarageYrBlt,GarageCars,GarageArea,WoodDeckSF,OpenPorchSF,ScreenPorch,PoolArea,MoSold,SalePrice)
+#housesFilter <-select(houses, LotFrontage, LotArea, YearBuilt, YearRemodAdd, MasVnrArea, BsmtFinSF1,BsmtUnfSF,TotalBsmtSF,X1stFlrSF,X2ndFlrSF,GrLivArea,TotRmsAbvGrd,Fireplaces,GarageYrBlt,GarageCars,GarageArea,WoodDeckSF,OpenPorchSF,ScreenPorch,PoolArea,MoSold,SalePrice)
 #Data cleanup
-housesFilter <- na.omit(housesFilter)
+#housesFilter <- na.omit(housesFilter)
 #k-medias
-cluster <- housesFilter
-km<-kmeans(housesFilter,3)
-housesFilter$grupo<-km$cluster
+#cluster <- housesFilter
+#km<-kmeans(housesFilter,3)
+#housesFilter$grupo<-km$cluster
 
-plotcluster(cluster,km$cluster) #grafica la ubicación de los clusters
+#plotcluster(cluster,km$cluster) #grafica la ubicación de los clusters
 #Método de la silueta para las k-medias
-silkm<-silhouette(km$cluster,dist(housesFilter))
-mean(silkm[,3]) #Silueta de 0.5634391
+#silkm<-silhouette(km$cluster,dist(housesFilter))
+#mean(silkm[,3]) #Silueta de 0.561677
 ## Correlación entre variables independientes y el precio de venta 
 
 
@@ -190,6 +201,16 @@ plotcluster(cluster,km$cluster) #grafica la ubicación de los clusters
 #Método de la silueta para las k-medias
 silkm<-silhouette(km$cluster,dist(housesFilter))
 mean(silkm[,3]) #Silueta de 0.5634391
+g1<- housesFilter[housesFilter$grupo==1,]
+prop.table(table(g1$Species))*100
+g2<- housesFilter[housesFilter$grupo==2,]
+prop.table(table(g2$Species))*100
+g3<- housesFilter[housesFilter$grupo==3,]
+prop.table(table(g3$Species))*100
+
+summary(g1)
+summary(g2)
+summary(g3)
 ## Correlación entre variables independientes y el precio de venta 
 cor(housesFilter$YearBuilt, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
 cor(housesFilter$YearRemodAdd, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
@@ -199,8 +220,6 @@ cor(housesFilter$GrLivArea, housesFilter$SalePrice, method = c("pearson", "kenda
 cor(housesFilter$TotRmsAbvGrd, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
 cor(housesFilter$GarageCars, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
 cor(housesFilter$GarageArea, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
-
-
 #Selected rows
 housesFilter <-select(houses,TotalBsmtSF,X1stFlrSF,GrLivArea,GarageCars,GarageArea,SalePrice)
 #Data cleanup
@@ -213,12 +232,31 @@ housesFilter$grupo<-km$cluster
 plotcluster(cluster,km$cluster) #grafica la ubicación de los clusters
 #Método de la silueta para las k-medias
 silkm<-silhouette(km$cluster,dist(housesFilter))
-mean(silkm[,3]) #Silueta de 0.5634391
+mean(silkm[,3]) #Silueta de 0.562137
 
 
 #----Prueba 2
 #Selected rows
-housesFilter <-select(houses,LotFrontage, LotArea,BsmtFinSF1, BsmtUnfSF,TotalBsmtSF,X1stFlrSF,GrLivArea,TotRmsAbvGrd,OpenPorchSF, GarageArea,WoodDeckSF,MoSold, SalePrice)
+#housesFilter <-select(houses,LotFrontage, LotArea,BsmtFinSF1, BsmtUnfSF,TotalBsmtSF,X1stFlrSF,GrLivArea,TotRmsAbvGrd,OpenPorchSF, GarageArea,WoodDeckSF,MoSold, SalePrice)
+#Data cleanup
+#housesFilter <- na.omit(housesFilter)
+#k-medias
+#cluster <- housesFilter
+#km<-kmeans(housesFilter,3)
+#housesFilter$grupo<-km$cluster
+
+#plotcluster(cluster,km$cluster) #grafica la ubicación de los clusters
+#Método de la silueta para las k-medias
+#silkm<-silhouette(km$cluster,dist(housesFilter))
+#mean(silkm[,3]) #Silueta de 0.5634391
+#---Prueba 3
+cor(housesFilter$TotalBsmtSF, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
+cor(housesFilter$X1stFlrSF, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
+cor(housesFilter$GrLivArea, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
+cor(housesFilter$GarageCars, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
+cor(housesFilter$GarageArea, housesFilter$SalePrice, method = c("pearson", "kendall", "spearman"))
+#Selected rows
+housesFilter <-select(houses,TotalBsmtSF,X1stFlrSF,GrLivArea,GarageCars,GarageArea,SalePrice)
 #Data cleanup
 housesFilter <- na.omit(housesFilter)
 #k-medias
@@ -229,6 +267,67 @@ housesFilter$grupo<-km$cluster
 plotcluster(cluster,km$cluster) #grafica la ubicación de los clusters
 #Método de la silueta para las k-medias
 silkm<-silhouette(km$cluster,dist(housesFilter))
-mean(silkm[,3]) #Silueta de 0.5634391
-#---Prueba 3
-housesFilter <-select(houses,MasVnrArea, SalePrice)
+mean(silkm[,3]) #Silueta de 0.562137
+
+#Mixture of gaussians
+housesFilter <-select(houses, LotFrontage, LotArea, YearBuilt, YearRemodAdd, MasVnrArea,SalePrice)
+#Data cleanup
+housesFilter <- na.omit(housesFilter)
+mc<-Mclust(housesFilter,3)
+plot(mc, what = "classification", main="MClust Classification")
+housesFilter$mxGau<-mc$classification
+#Mixture of gaussians
+housesFilter <-select(houses, BsmtFinSF1,BsmtFinSF2,BsmtUnfSF,TotalBsmtSF,SalePrice)
+#Data cleanup
+housesFilter <- na.omit(housesFilter)
+mc<-Mclust(housesFilter,3)
+plot(mc, what = "classification", main="MClust Classification")
+housesFilter$mxGau<-mc$classification
+#Mixture of gaussians
+housesFilter <-select(houses,X1stFlrSF,X2ndFlrSF,LowQualFinSF,GrLivArea,SalePrice)
+#Data cleanup
+housesFilter <- na.omit(housesFilter)
+mc<-Mclust(housesFilter,3)
+plot(mc, what = "classification", main="MClust Classification")
+datos$mxGau<-mc$classification
+#Mixture of gaussians
+housesFilter <-select(houses,TotRmsAbvGrd,Fireplaces,GarageYrBlt,GarageCars,SalePrice)
+#Data cleanup
+housesFilter <- na.omit(housesFilter)
+mc<-Mclust(housesFilter,3)
+plot(mc, what = "classification", main="MClust Classification")
+datos$mxGau<-mc$classification
+#Mixture of gaussians
+housesFilter <-select(houses,ScreenPorch,PoolArea,MoSold,YrSold,SalePrice)
+#Data cleanup
+housesFilter <- na.omit(housesFilter)
+mc<-Mclust(housesFilter,3)
+plot(mc, what = "classification", main="MClust Classification")
+datos$mxGau<-mc$classification
+#Mixture of gaussians
+housesFilter <-select(houses,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,SalePrice)
+#Data cleanup
+housesFilter <- na.omit(housesFilter)
+mc<-Mclust(housesFilter,3)
+plot(mc, what = "classification", main="MClust Classification")
+datos$mxGau<-mc$classification
+#Prueba
+housesFilter <-select(houses, GarageYrBlt, , X1stFlrsSF, X2stFlrsSF, GrLivArea,SalePrice)
+#Data cleanup
+housesFilter <- na.omit(housesFilter)
+mc<-Mclust(housesFilter,3)
+plot(mc, what = "classification", main="MClust Classification")
+housesFilter$mxGau<-mc$classification
+
+cluster <- housesFilter
+km<-kmeans(housesFilter,3)
+housesFilter$grupo<-km$cluster
+
+#Método de la silueta para las k-medias
+silkm<-silhouette(km$cluster,dist(housesFilter))
+mean(silkm[,3]) #0.55, no es la mejor partición pero no está mal
+
+#Método de la silueta para mixture of gaussians
+silmg<-silhouette(mc$classification,dist(housesFilter))
+mean(silmg[,3]) #0.50, no es la mejor partición pero no está mal
+
