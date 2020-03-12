@@ -293,34 +293,6 @@ mc<-Mclust(housesFilter,3)
 plot(mc, what = "classification", main="MClust Classification")
 #housesFilter$mxGau<-mc$classification
 housesFilter 
-#Mixture of gaussians
-#housesFilter <-select(houses,TotRmsAbvGrd,Fireplaces,GarageYrBlt,GarageCars,SalePrice)
-#Data cleanup
-#housesFilter <- na.omit(housesFilter)
-#mc<-Mclust(housesFilter,3)
-#plot(mc, what = "classification", main="MClust Classification")
-#datos$mxGau<-mc$classification
-#Mixture of gaussians
-#housesFilter <-select(houses,ScreenPorch,PoolArea,MoSold,YrSold,SalePrice)
-#Data cleanup
-#housesFilter <- na.omit(housesFilter)
-#mc<-Mclust(housesFilter,3)
-#plot(mc, what = "classification", main="MClust Classification")
-#datos$mxGau<-mc$classification
-#Mixture of gaussians
-#housesFilter <-select(houses,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,SalePrice)
-#Data cleanup
-#housesFilter <- na.omit(housesFilter)
-#mc<-Mclust(housesFilter,3)
-#plot(mc, what = "classification", main="MClust Classification")
-#datos$mxGau<-mc$classification
-#Prueba
-#housesFilter <-select(houses, GarageYrBlt, X1stFlrsSF ,SalePrice)
-#Data cleanup
-#housesFilter <- na.omit(housesFilter)
-#mc<-Mclust(housesFilter,3)
-#plot(mc, what = "classification", main="MClust Classification")
-#housesFilter$mxGau<-mc$classification
 
 cluster <- housesFilter
 km<-kmeans(housesFilter,3)
@@ -339,12 +311,19 @@ library(caret)
 library(tree)
 library(rpart.plot)
 library(randomForest)
-#housesFilter <-select(houses,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,grupo)
+
+houses <- read.csv("train.csv")
+
+housesFilter <-select(houses, LotFrontage, LotArea, YearBuilt, YearRemodAdd, MasVnrArea, BsmtFinSF1,BsmtFinSF2,BsmtUnfSF,TotalBsmtSF,X1stFlrSF,X2ndFlrSF,LowQualFinSF,GrLivArea,TotRmsAbvGrd,Fireplaces,GarageYrBlt,GarageCars,GarageArea,WoodDeckSF,OpenPorchSF,EnclosedPorch,ScreenPorch,PoolArea,MoSold,SalePrice,YrSold)
+
 #Data cleanup
-housesFilter
+housesFilter <- na.omit(housesFilter)
+cluster <- housesFilter
+km<-kmeans(housesFilter,3)
+housesFilter$grupo<-km$cluster
 housesFiltertree <- select(housesFilter,X1stFlrSF,X2ndFlrSF,GrLivArea,GarageCars,GarageYrBlt,grupo)
-#<- na.omit(housesFilter)
-# variable respuesta la clase de la flor
+
+
 housesFiltertree
 porciento <- 70/100
 
@@ -355,11 +334,8 @@ test<-housesFiltertree[-trainRowsNumber,]
 train
 #Clasiffication Tree
 dt_model<-rpart(train$grupo~.,train,method = "class")
-plot(dt_model);text(dt_model)
-prp(dt_model)
 rpart.plot(dt_model)
 
-head(test)
 prediccion <- predict(dt_model, newdata = test[1:5])
 prediccion
 
@@ -368,18 +344,41 @@ test$prediccion<-columnaMasAlta #Se le añade al grupo de prueba el valor de la 
 test#Resultado de la predicción
 
 cfm<-table(test$grupo,test$prediccion)
+confusionMatrix(table(test$prediccion, test$grupo))
 cfm
+
 #con random forest
+
+options(repos='http://cran.rstudio.org')
+have.packages <- installed.packages()
+cran.packages <- c('devtools','plotrix','randomForest','tree')
+to.install <- setdiff(cran.packages, have.packages[,1])
+if(length(to.install)>0) install.packages(to.install)
+
+library(devtools)
+if(!('reprtree' %in% installed.packages())){
+  install_github('araastat/reprtree')
+}
+for(p in c(cran.packages, 'reprtree')) eval(substitute(library(pkg), list(pkg=p)))
+
+library(reprtree)
+
 modeloRF1<-randomForest(train$grupo~.,data=train)
 prediccionRF1<-predict(modeloRF1,newdata = test)
 testCompleto<-test
-testCompleto
-testCompleto$predRF<-prediccionRF1
-cfmRandomForest <- confusionMatrix(testCompleto$predRF, testCompleto$Species)
+
+testCompleto$predRF<-round(prediccionRF1)
+
+testCompleto$predRF
+testCompleto$grupo
+cfmRandomForest <- confusionMatrix(table(testCompleto$predRF, testCompleto$grupo))
+cfmRandomForest
+
+
+reprtree:::plot.getTree(modelo)
+
 #Regresion Tree
 dt_model<-rpart(train$grupo~.,train,method = "anova")
-plot(dt_model);text(dt_model)
-prp(dt_model)
 rpart.plot(dt_model)
 
 head(test)
@@ -391,4 +390,5 @@ test$prediccion<-columnaMasAlta #Se le añade al grupo de prueba el valor de la 
 test#Resultado de la predicción
 
 cfm<-table(test$grupo,test$prediccion)
+confusionMatrix(table(test$prediccion, test$grupo))
 cfm
