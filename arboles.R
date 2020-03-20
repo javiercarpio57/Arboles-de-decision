@@ -311,6 +311,7 @@ library(caret)
 library(tree)
 library(rpart.plot)
 library(randomForest)
+library(plyr)
 
 houses <- read.csv("train.csv")
 
@@ -321,8 +322,18 @@ housesFilter <- na.omit(housesFilter)
 cluster <- housesFilter
 km<-kmeans(housesFilter,3)
 housesFilter$grupo<-km$cluster
-housesFiltertree <- select(housesFilter,X1stFlrSF,X2ndFlrSF,GrLivArea,GarageCars,GarageYrBlt,grupo)
+housesFilter
+housesFiltertree <- select(housesFilter,X1stFlrSF,X2ndFlrSF,GrLivArea,GarageCars,GarageYrBlt, SalePrice, grupo)
 
+summary(housesFilter)
+
+g1<- housesFilter[housesFilter$grupo==1,]
+g2<- housesFilter[housesFilter$grupo==2,]
+g3<- housesFilter[housesFilter$grupo==3,]
+
+summary(g1$SalePrice)
+summary(g2$SalePrice)
+summary(g3$SalePrice)
 
 housesFiltertree
 porciento <- 70/100
@@ -331,7 +342,7 @@ set.seed(123)
 trainRowsNumber<-sample(1:nrow(housesFiltertree),porciento*nrow(housesFiltertree))
 train<-housesFiltertree[trainRowsNumber,]
 test<-housesFiltertree[-trainRowsNumber,]
-train
+train$grupo <- mapvalues(train$grupo, c(1,2,3), c("Intermedio","Bajo","Caro"))
 #Clasiffication Tree
 dt_model<-rpart(train$grupo~.,train,method = "class")
 rpart.plot(dt_model)
@@ -349,19 +360,6 @@ cfm
 
 #con random forest
 
-options(repos='http://cran.rstudio.org')
-have.packages <- installed.packages()
-cran.packages <- c('devtools','plotrix','randomForest','tree')
-to.install <- setdiff(cran.packages, have.packages[,1])
-if(length(to.install)>0) install.packages(to.install)
-
-library(devtools)
-if(!('reprtree' %in% installed.packages())){
-  install_github('araastat/reprtree')
-}
-for(p in c(cran.packages, 'reprtree')) eval(substitute(library(pkg), list(pkg=p)))
-
-library(reprtree)
 
 modeloRF1<-randomForest(train$grupo~.,data=train)
 prediccionRF1<-predict(modeloRF1,newdata = test)
@@ -375,20 +373,16 @@ cfmRandomForest <- confusionMatrix(table(testCompleto$predRF, testCompleto$grupo
 cfmRandomForest
 
 
-reprtree:::plot.getTree(modelo)
-
 #Regresion Tree
-dt_model<-rpart(train$grupo~.,train,method = "anova")
+train$grupo <- mapvalues(train$grupo, c(1,2,3), c("Intermedio","Bajo","Caro"))
+dt_model<-rpart(train$SalePrice~.,train,method = "anova")
 rpart.plot(dt_model)
 
 head(test)
 prediccion <- predict(dt_model, newdata = test[1:5])
-prediccion
+View(prediccion)
 
-columnaMasAlta<-apply(prediccion, 1, function(x) colnames(prediccion)[which.max(x)])
-test$prediccion<-columnaMasAlta #Se le añade al grupo de prueba el valor de la predicción
-test#Resultado de la predicción
+plot(test$SalePrice, col='blue')
+points(prediccion, col='green')
 
-cfm<-table(test$grupo,test$prediccion)
-confusionMatrix(table(test$prediccion, test$grupo))
-cfm
+RMSE(test$SalePrice, prediccion)
